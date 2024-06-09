@@ -13,14 +13,13 @@ import os.path
 import environ
 
 from pathlib import Path
-from PIL import Image
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(
     # set casting, default value
-    DEBUG=(bool, False)
+    DEBUG=(bool, False),
 )
 # reading .env file
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
@@ -37,6 +36,12 @@ DEBUG = env.bool('DEBUG')
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
 FRONTEND_DIR = os.path.join(BASE_DIR, 'frontend')
+
+API_ONLY = env.bool('API_ONLY')
+
+if not API_ONLY:
+    if not os.path.isdir(FRONTEND_DIR):
+        raise Exception('Frontend folder is not exist, please create frontend folder or disable frontend.')
 
 # Application definition
 INSTALLED_APPS = [
@@ -64,7 +69,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [FRONTEND_DIR],
+        'DIRS': [os.path.join(FRONTEND_DIR, 'templates')],
         'APP_DIRS': False,
         'OPTIONS': {
             'context_processors': [
